@@ -1,0 +1,87 @@
+.milestone-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.milestone-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    cursor: pointer;
+    transition: all 150ms ease;
+}
+
+.milestone-item:hover {
+    border-color: var(--color-border-light);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+}
+
+.milestone-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.milestone-item-title {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    margin: 0;
+    color: var(--color-text-primary);
+    flex: 1;
+}
+
+@media (max-width: 640px) {
+    .milestone-item-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+}
+
+
+.urgency-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+.urgency-critical {
+    background-color: #FF4D4D;
+    box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
+}
+
+.urgency-warning {
+    background-color: #FFD700;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.urgency-normal {
+    background-color: #7FFF6B;
+    box-shadow: 0 0 5px rgba(127, 255, 107, 0.5);
+}
+
+.delete-icon-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all 150ms ease;
+    margin-left: var(--spacing-xs);
+}
+
+.delete-icon-btn:hover {
+    color: var(--color-danger);
+    background: rgba(255, 77, 77, 0.1);
+}

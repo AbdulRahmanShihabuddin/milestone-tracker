@@ -1,0 +1,57 @@
+[
+  {
+    "id": "906380a9-dd41-41fd-8e49-b5727bc66ed3",
+    "userId": "14884ce6-4797-4b7b-878b-5d0e9af313f2",
+    "title": "Milestone 1",
+    "description": "",
+    "status": "pending",
+    "category": "compliance",
+    "dueDate": "2025-12-01",
+    "createdAt": "2025-11-28T04:27:20.495Z",
+    "updatedAt": "2025-11-28T04:27:20.495Z"
+  },
+  {
+    "id": "1cb26498-7223-4a8a-950d-3609bbc08813",
+    "userId": "14884ce6-4797-4b7b-878b-5d0e9af313f2",
+    "title": "Milestone 2",
+    "description": "",
+    "status": "in-progress",
+    "category": "general",
+    "dueDate": "2025-11-29",
+    "createdAt": "2025-11-28T04:27:31.543Z",
+    "updatedAt": "2025-11-28T04:28:06.764Z"
+  },
+  {
+    "id": "00865752-c424-4a81-91a1-91d5db6bd4c1",
+    "userId": "14884ce6-4797-4b7b-878b-5d0e9af313f2",
+    "title": "Milestone 3",
+    "description": "",
+    "status": "completed",
+    "category": "testing",
+    "dueDate": "2025-12-01",
+    "createdAt": "2025-11-28T04:27:52.748Z",
+    "updatedAt": "2025-11-28T04:27:52.748Z"
+  },
+  {
+    "id": "8e99eccc-c703-4936-b093-531238995bba",
+    "userId": "f4630ad6-b8e5-495d-ba6e-9d55eb5426cf",
+    "title": "Milestone 1",
+    "description": "Something",
+    "status": "in-progress",
+    "category": "other",
+    "dueDate": "2025-11-28",
+    "createdAt": "2025-11-28T06:21:27.233Z",
+    "updatedAt": "2025-11-28T06:21:27.233Z"
+  },
+  {
+    "id": "6c8433b6-770b-478c-84d4-663e6a34654c",
+    "userId": "f4630ad6-b8e5-495d-ba6e-9d55eb5426cf",
+    "title": "Milestone 2",
+    "description": "",
+    "status": "pending",
+    "category": "general",
+    "dueDate": "2025-11-30",
+    "createdAt": "2025-11-28T06:21:41.511Z",
+    "updatedAt": "2025-11-28T06:21:41.511Z"
+  }
+]
