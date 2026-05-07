@@ -1,8 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { addUser, findUserByEmail } from '../utils/dataStore.js';
-import { randomUUID } from 'crypto';
+import User from '../models/User.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -24,7 +23,7 @@ router.post('/register', async (req, res) => {
         }
 
         // Check if user already exists
-        const existingUser = findUserByEmail(email);
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists with this email' });
         }
@@ -33,19 +32,17 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create user
-        const user = {
-            id: randomUUID(),
+        const user = new User({
             name,
             email,
-            password: hashedPassword,
-            createdAt: new Date().toISOString()
-        };
+            password: hashedPassword
+        });
 
-        addUser(user);
+        await user.save();
 
         // Generate JWT token
         const token = jwt.sign(
-            { id: user.id, email: user.email, name: user.name },
+            { id: user._id, email: user.email, name: user.name },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
@@ -54,7 +51,7 @@ router.post('/register', async (req, res) => {
             message: 'User registered successfully',
             token,
             user: {
-                id: user.id,
+                id: user._id,
                 name: user.name,
                 email: user.email
             }
@@ -76,7 +73,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Find user
-        const user = findUserByEmail(email);
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -89,7 +86,7 @@ router.post('/login', async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { id: user.id, email: user.email, name: user.name },
+            { id: user._id, email: user.email, name: user.name },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
@@ -98,7 +95,7 @@ router.post('/login', async (req, res) => {
             message: 'Login successful',
             token,
             user: {
-                id: user.id,
+                id: user._id,
                 name: user.name,
                 email: user.email
             }

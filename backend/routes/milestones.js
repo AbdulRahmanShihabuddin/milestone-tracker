@@ -1,12 +1,5 @@
 import express from 'express';
-import { randomUUID } from 'crypto';
-import {
-    getMilestonesByUserId,
-    addMilestone,
-    updateMilestone,
-    deleteMilestone,
-    findMilestoneById
-} from '../utils/dataStore.js';
+import Milestone from '../models/Milestone.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -15,10 +8,22 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Get all milestones for the authenticated user
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const milestones = getMilestonesByUserId(req.user.id);
-        res.json(milestones);
+        const milestones = await Milestone.find({ userId: req.user.id });
+        // Map _id to id for frontend compatibility
+        const formattedMilestones = milestones.map(m => ({
+            id: m._id,
+            userId: m.userId,
+            title: m.title,
+            description: m.description,
+            status: m.status,
+            category: m.category,
+            dueDate: m.dueDate,
+            createdAt: m.createdAt,
+            updatedAt: m.updatedAt
+        }));
+        res.json(formattedMilestones);
     } catch (error) {
         console.error('Error fetching milestones:', error);
         res.status(500).json({ error: 'Server error fetching milestones' });
@@ -26,20 +31,30 @@ router.get('/', (req, res) => {
 });
 
 // Get a specific milestone
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const milestone = findMilestoneById(req.params.id);
+        const milestone = await Milestone.findById(req.params.id);
 
         if (!milestone) {
             return res.status(404).json({ error: 'Milestone not found' });
         }
 
         // Ensure user owns this milestone
-        if (milestone.userId !== req.user.id) {
+        if (milestone.userId.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        res.json(milestone);
+        res.json({
+            id: milestone._id,
+            userId: milestone.userId,
+            title: milestone.title,
+            description: milestone.description,
+            status: milestone.status,
+            category: milestone.category,
+            dueDate: milestone.dueDate,
+            createdAt: milestone.createdAt,
+            updatedAt: milestone.updatedAt
+        });
     } catch (error) {
         console.error('Error fetching milestone:', error);
         res.status(500).json({ error: 'Server error fetching milestone' });
@@ -47,7 +62,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Create a new milestone
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { title, description, status, dueDate, category } = req.body;
 
@@ -61,20 +76,28 @@ router.post('/', (req, res) => {
             return res.status(400).json({ error: 'Invalid status' });
         }
 
-        const milestone = {
-            id: randomUUID(),
+        const milestone = new Milestone({
             userId: req.user.id,
             title,
             description: description || '',
             status: status || 'pending',
             category: category || 'general',
-            dueDate: dueDate || null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
+            dueDate: dueDate || null
+        });
 
-        addMilestone(milestone);
-        res.status(201).json(milestone);
+        await milestone.save();
+
+        res.status(201).json({
+            id: milestone._id,
+            userId: milestone.userId,
+            title: milestone.title,
+            description: milestone.description,
+            status: milestone.status,
+            category: milestone.category,
+            dueDate: milestone.dueDate,
+            createdAt: milestone.createdAt,
+            updatedAt: milestone.updatedAt
+        });
     } catch (error) {
         console.error('Error creating milestone:', error);
         res.status(500).json({ error: 'Server error creating milestone' });
@@ -82,16 +105,16 @@ router.post('/', (req, res) => {
 });
 
 // Update a milestone
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
-        const milestone = findMilestoneById(req.params.id);
+        const milestone = await Milestone.findById(req.params.id);
 
         if (!milestone) {
             return res.status(404).json({ error: 'Milestone not found' });
         }
 
         // Ensure user owns this milestone
-        if (milestone.userId !== req.user.id) {
+        if (milestone.userId.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -103,19 +126,25 @@ router.put('/:id', (req, res) => {
             return res.status(400).json({ error: 'Invalid status' });
         }
 
-        const updatedData = {
-            ...(title !== undefined && { title }),
-            ...(description !== undefined && { description }),
-            ...(status !== undefined && { status }),
-            ...(category !== undefined && { category }),
-            ...(dueDate !== undefined && { dueDate }),
-            updatedAt: new Date().toISOString()
-        };
+        if (title !== undefined) milestone.title = title;
+        if (description !== undefined) milestone.description = description;
+        if (status !== undefined) milestone.status = status;
+        if (category !== undefined) milestone.category = category;
+        if (dueDate !== undefined) milestone.dueDate = dueDate;
 
-        updateMilestone(req.params.id, updatedData);
+        await milestone.save();
 
-        const updatedMilestone = findMilestoneById(req.params.id);
-        res.json(updatedMilestone);
+        res.json({
+            id: milestone._id,
+            userId: milestone.userId,
+            title: milestone.title,
+            description: milestone.description,
+            status: milestone.status,
+            category: milestone.category,
+            dueDate: milestone.dueDate,
+            createdAt: milestone.createdAt,
+            updatedAt: milestone.updatedAt
+        });
     } catch (error) {
         console.error('Error updating milestone:', error);
         res.status(500).json({ error: 'Server error updating milestone' });
@@ -123,20 +152,20 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete a milestone
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        const milestone = findMilestoneById(req.params.id);
+        const milestone = await Milestone.findById(req.params.id);
 
         if (!milestone) {
             return res.status(404).json({ error: 'Milestone not found' });
         }
 
         // Ensure user owns this milestone
-        if (milestone.userId !== req.user.id) {
+        if (milestone.userId.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        deleteMilestone(req.params.id);
+        await Milestone.findByIdAndDelete(req.params.id);
         res.json({ message: 'Milestone deleted successfully' });
     } catch (error) {
         console.error('Error deleting milestone:', error);
