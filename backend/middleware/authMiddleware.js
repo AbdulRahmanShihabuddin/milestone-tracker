@@ -13,6 +13,12 @@ export const authenticateToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Check if the token contains a valid MongoDB ObjectId (for migration from file-based storage)
+        if (!decoded.id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(401).json({ error: 'Invalid token format. Please log in again.' });
+        }
+        
         req.user = decoded; 
         next();
     } catch (error) {
